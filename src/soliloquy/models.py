@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 
 from django.contrib.auth.models import User as DjangoUser
 from django.core.exceptions import ValidationError
@@ -56,7 +57,7 @@ class Entry(PolymorphicModel):
     key = models.CharField(max_length=32, null=True, blank=True)  # We allow this to be empty while we retire 'id'.
     # key = models.CharField(max_length=32)  # String of <creation date>,<some counter>
 
-    creation_date = models.DateTimeField()
+    creation_date = models.DateTimeField(default=timezone.now)
 
     author = models.ForeignKey("User", on_delete=models.CASCADE)
 

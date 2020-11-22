@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
 from soliloquy.models import DjangoUser, User, Tag, Entry, Reference, Note, Notebook, Task, Project, Event, Saga
-
+import datetime
 
 class DjangoUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -53,7 +53,7 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
     references = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='reference-detail')
     referenced_by = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='reference-detail')
 
-    creation_date = serializers.DateTimeField(format="iso-8601")
+    creation_date = serializers.DateTimeField(read_only=True, format="iso-8601")
 
     class Meta:
         model = Entry
@@ -62,13 +62,20 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
             'author': {'read_only': True}
         }
 
+    def create(self, validated_data):
+        return self.Meta.model.objects.create(
+            **validated_data,
+            author = User.objects.get(django_user = self.context['request'].user)
+        )
 
-class AbstractEntrySerializer(serializers.HyperlinkedModelSerializer):
+
+class AbstractEntrySerializer:
     class Meta:
         fields = ['url', 'id', 'author', 'creation_date', 'active', 'name', 'content', 'tags', 'references',
                   'referenced_by', 'specialized_url']
         extra_kwargs = {
             'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
+            'creation_date': {'read_only': True},
             'author': {'read_only': True},
         }
 
