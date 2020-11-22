@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
-from soliloquy.models import DjangoUser, User, Client, Tag, Entry, Reference, Note, Notebook, Task, Project, Event, Saga
+from soliloquy.models import DjangoUser, User, Tag, Entry, Reference, Note, Notebook, Task, Project, Event, Saga
 
 
 class DjangoUserSerializer(serializers.HyperlinkedModelSerializer):
@@ -27,12 +27,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         django_user = DjangoUserSerializer.create(DjangoUserSerializer(), validated_data=user_data)
         user, created = User.objects.update_or_create(django_user=django_user, **validated_data)
         return user
-
-
-class ClientSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Client
-        fields = ['id', 'url', 'name', 'owner']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -61,17 +55,22 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
 
     creation_date = serializers.DateTimeField(format="iso-8601")
 
-    client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())
-
     class Meta:
         model = Entry
-        fields = ['id', 'client', 'creation_date', 'active', 'name', 'content', 'tags', 'references', 'referenced_by']
+        fields = ['id', 'author', 'creation_date', 'active', 'name', 'content', 'tags', 'references', 'referenced_by']
+        extra_kwargs = {
+            'author': {'read_only': True}
+        }
 
 
 class AbstractEntrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        fields = ['url', 'id', 'client', 'creation_date', 'active', 'name', 'content', 'tags', 'references',
+        fields = ['url', 'id', 'author', 'creation_date', 'active', 'name', 'content', 'tags', 'references',
                   'referenced_by', 'specialized_url']
+        extra_kwargs = {
+            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
+            'author': {'read_only': True},
+        }
 
 
 class NoteSerializer(EntrySerializer):
@@ -80,9 +79,7 @@ class NoteSerializer(EntrySerializer):
     class Meta:
         model = Note
         fields = AbstractEntrySerializer.Meta.fields + ['parent_notebook']
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-        }
+        extra_kwargs = dict(AbstractEntrySerializer.Meta.extra_kwargs)
 
 
 class NoteBookSerializer(EntrySerializer):
@@ -91,10 +88,10 @@ class NoteBookSerializer(EntrySerializer):
     class Meta:
         model = Notebook
         fields = AbstractEntrySerializer.Meta.fields + ['notes']
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-            'notes': {'read_only': True}
-        }
+        extra_kwargs = dict(
+            AbstractEntrySerializer.Meta.extra_kwargs,
+            notes = {'read_only': True}
+        )
 
 
 class TaskSerializer(EntrySerializer):
@@ -105,9 +102,7 @@ class TaskSerializer(EntrySerializer):
         fields = AbstractEntrySerializer.Meta.fields + ['due_date', 'expiration_date', 'recurrence', 'priority',
                                                         'effort_estimate', 'unit_of_work', 'parent_project', 'assignee',
                                                         'done']
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-        }
+        extra_kwargs = dict(AbstractEntrySerializer.Meta.extra_kwargs)
 
     def validate(self, attrs):
         if (attrs.get('expiration_date') and attrs.get('due_date')
@@ -134,10 +129,10 @@ class ProjectSerializer(EntrySerializer):
     class Meta:
         model = Project
         fields = AbstractEntrySerializer.Meta.fields + ['due_date', 'priority', 'unit_of_work', 'tasks']
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-            'tasks': {'read_only': True}
-        }
+        extra_kwargs = dict(
+            AbstractEntrySerializer.Meta.extra_kwargs,
+            tasks = {'read_only': True}
+        )
 
 
 class EventSerializer(EntrySerializer):
@@ -148,9 +143,7 @@ class EventSerializer(EntrySerializer):
         fields = AbstractEntrySerializer.Meta.fields + [
             'start_date', 'end_date', 'all_day', 'start_time', 'end_time', 'parent_saga'
         ]
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-        }
+        extra_kwargs = dict(AbstractEntrySerializer.Meta.extra_kwargs)
 
 
 class SagaSerializer(EntrySerializer):
@@ -159,10 +152,10 @@ class SagaSerializer(EntrySerializer):
     class Meta:
         model = Saga
         fields = AbstractEntrySerializer.Meta.fields + ['events']
-        extra_kwargs = {
-            'url': {'view_name': 'entry-detail', 'lookup_field': 'pk'},
-            'events': {'read_only': True}
-        }
+        extra_kwargs = dict(
+            AbstractEntrySerializer.Meta.extra_kwargs,
+            events = {'read_only': True}
+        )
 
 
 class EntryPolymorphicSerializer(PolymorphicSerializer):

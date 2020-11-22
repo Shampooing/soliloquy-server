@@ -34,25 +34,6 @@ class User(models.Model):
 #     contributor = models.ForeignKey("User", on_delete=models.CASCADE)
 
 
-# ---- Decentralization
-class Client(models.Model):
-    """
-    A source of entries, owned by a user. The typical use case is of a user's device that has been registered as a
-    client of the application.
-    """
-    owner = models.ForeignKey("User", on_delete=models.CASCADE)
-    name = models.CharField(max_length=120)
-
-    class Meta:
-        constraints = [
-            # Proxy for a composite primary key
-            models.UniqueConstraint(fields=("owner", "name"), name="client_composite_key_constraint")
-        ]
-
-    def __str__(self):
-        return str(self.name)
-
-
 class Tag(models.Model):
     """
     A tag is just a word we may use to annotate Entries.
@@ -73,14 +54,11 @@ class Entry(PolymorphicModel):
     # of an entry on the client. To be replaced as a primary key by the 'key' field.
 
     key = models.CharField(max_length=32, null=True, blank=True)  # We allow this to be empty while we retire 'id'.
-    # key = models.CharField(max_length=32)  # String of <creation date>,<some counter>,<client id>
+    # key = models.CharField(max_length=32)  # String of <creation date>,<some counter>
 
     creation_date = models.DateTimeField()
-    client = models.ForeignKey("Client", on_delete=models.CASCADE)  # Really clients should never be deleted
 
-    @property
-    def author(self):  # we expose the author of the entry for convenience
-        return self.client.owner
+    author = models.ForeignKey("User", on_delete=models.CASCADE)
 
     active = models.BooleanField(default=True)  # This is how we implement a soft delete
 
@@ -96,10 +74,6 @@ class Entry(PolymorphicModel):
     class Meta:
         ordering = ["-creation_date"]  # Show most recent entries first
         verbose_name_plural = "entries"
-        constraints = [
-            # Proxy for a composite primary key
-            models.UniqueConstraint(fields=("id", "client"), name="entry_composite_key_constraint")
-        ]
 
     def __str__(self):
         return str(self.name)

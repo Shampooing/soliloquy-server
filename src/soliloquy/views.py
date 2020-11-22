@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from soliloquy.models import User, Client, Tag, Entry, Note, Reference, Notebook, Task, Project, Event, Saga
-from soliloquy.serializers import UserSerializer, NoteSerializer, ClientSerializer, TagSerializer, \
+from soliloquy.models import User, Tag, Entry, Note, Reference, Notebook, Task, Project, Event, Saga
+from soliloquy.serializers import UserSerializer, NoteSerializer, TagSerializer, \
     ReferenceSerializer, NoteBookSerializer, TaskSerializer, ProjectSerializer, EventSerializer, SagaSerializer, \
     EntryPolymorphicSerializer
 
@@ -9,11 +9,6 @@ from soliloquy.serializers import UserSerializer, NoteSerializer, ClientSerializ
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class ClientViewSet(viewsets.ModelViewSet):
-    queryset = Client.objects.all()
-    serializer_class = ClientSerializer
 
 
 class TagViewSet(viewsets.ModelViewSet):

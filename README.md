@@ -53,8 +53,6 @@ python src/manage.py runserver 0.0.0.0:8000
 
 9. Create a User by clicking on 'Add' next to the 'Users' row in the 'Soliloquy' table, selecting the existing superuser as the 'Django user', then clicking 'Save'.
 
-10. Create a Client by clicking on 'Add' next to the 'Clients' row in the 'Soliloquy' table, selecting the newly created user as the 'Owner', giving it a name of your choice, then clicking 'Save'.
-
 
 Usage
 =====
