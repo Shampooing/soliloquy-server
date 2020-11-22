@@ -12,7 +12,7 @@ python >= 3.6 is required. You can get it [here](https://www.python.org/) or usi
 1. Clone this repo and `cd` into it:
 
 ```bash
-git clone https://github.com/Shampooing/soliloquy-server .
+git clone https://github.com/Shampooing/soliloquy-server
 cd soliloquy-server
 ```
 
@@ -49,11 +49,11 @@ python src/manage.py createsuperuser
 python src/manage.py runserver 0.0.0.0:8000
 ```
 
-8. Visit django's admin interface on http://127.0.0.1:8000/admin and log in using the superuser's credentials you just created.
+8. Visit django's admin interface on http://localhost:8000/admin and log in using the superuser's credentials you just created.
 
-9. Create a User by clicking on 'Add' next to the 'Users' row in the 'Soliloquy' table, selecting the existing superuser as the 'Django user', then clicking 'Save'.
+9. Create a User by clicking on 'Add' next to the 'Users' row, selecting the existing superuser as the 'Django user', then clicking 'Save'.
 
-10. Create a Client by clicking on 'Add' next to the 'Clients' row in the 'Soliloquy' table, selecting the newly created user as the 'Owner', giving it a name of your choice, then clicking 'Save'.
+10. Create a Client by clicking on 'Add' next to the 'Clients' row, selecting the newly created user as the 'Owner', giving it a name of your choice, then clicking 'Save'.
 
 
 Usage
@@ -65,4 +65,4 @@ The following starts the server on port 8000 of the local host:
 python src/manage.py runserver 0.0.0.0:8000
 ```
 
-You can then check that the server is running and accepting requests by visiting http://127.0.0.1:8000.
+You can then check that the server is running and accepting requests by visiting http://localhost:8000.
