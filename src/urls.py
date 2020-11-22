@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 from soliloquy import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -19,6 +20,7 @@ router.register(r'sagas', views.SagaViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_auth_token),
     path('', include(router.urls)),
 ]
 
